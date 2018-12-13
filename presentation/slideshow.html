@@ -181,11 +181,6 @@ log\theta_{g1} = home + att_{h(g)} + def_{a(g)}
 
 </article></slide><slide class=""><hgroup><h2>Deviations from Baio &amp; Blangiardo</h2></hgroup><article  id="deviations-from-baio-blangiardo">
 
-<p>Discard \(\mu_{att/def}\), as we&#39;re imposing a zero-sum constraint anyways; such that we model the offense/defense parameters as: \[
-off_{p} \sim Normal(0, \tau_{off}) \\
-def_{p} \sim Normal(0, \tau_{def})
-\]</p>
-
 <p>Discard the \(home\) parameter - as it does not seem to make much sense in an online-game: \[
 log\theta_{g1} = off_{p1(g)} + def_{p2(g)} \\
 log\theta_{g2} = off_{p2(g)} + def_{p1(g)}
@@ -200,7 +195,9 @@ log \theta_{g2} = off_{p2(g)} + def_{p1(g)} \\
 off_{p} \sim Normal(0, \tau_{off}) \\
 def_{p} \sim Normal(0, \tau_{def}) \\
 \tau_{off} \sim Gamma(0.1, 0.1) \\
-\tau_{off} \sim Gamma(0.1, 0.1)
+\tau_{def} \sim Gamma(0.1, 0.1) \\
+\mu{off} \sim Normal(0, 0.0001) \\
+\mu{def} \sim Normal(0, 0.0001)
 \]</p>
 
 </article></slide><slide class=""><hgroup><h2>DAG of Baseline Model</h2></hgroup><article  id="dag-of-baseline-model">
@@ -248,11 +245,13 @@ top9 = top100[:9]</pre>
 </article></slide><slide class=""><hgroup><h2>Specification of baseline model</h2></hgroup><article  id="specification-of-baseline-model">
 
 <pre class = 'prettyprint lang-python'>with pm.Model() as base_model:
-    tau_att    = pm.Gamma(&#39;tau_att&#39;, 0.1, 0.1)
-    tau_def    = pm.Gamma(&#39;tau_def&#39;, 0.1, 0.1)
-    atts_star = pm.Normal(&quot;atts_star&quot;, mu = 0, 
+    mu_att    = pm.Normal(&#39;mu_att&#39;, 0, 0.0001)
+    mu_def    = pm.Normal(&#39;mu_def&#39;, 0, 0.0001)
+    tau_att   = pm.Gamma(&#39;tau_att&#39;, 0.1, 0.1)
+    tau_def   = pm.Gamma(&#39;tau_def&#39;, 0.1, 0.1)
+    atts_star = pm.Normal(&quot;atts_star&quot;, mu = mu_att, 
                           sd = tau_att, shape = n_players)
-    defs_star = pm.Normal(&quot;defs_star&quot;, mu = 0, 
+    defs_star = pm.Normal(&quot;defs_star&quot;, mu = mu_def, 
                           sd = tau_def, shape = n_players)
     atts = pm.Deterministic(&#39;atts&#39;, atts_star - tt.mean(atts_star))
     defs = pm.Deterministic(&#39;defs&#39;, defs_star - tt.mean(defs_star))

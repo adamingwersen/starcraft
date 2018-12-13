@@ -70,11 +70,6 @@ log\theta_{g1} = home + att_{h(g)} + def_{a(g)}
 $$
 
 ## Deviations from Baio & Blangiardo
-Discard $\mu_{att/def}$, as we're imposing a zero-sum constraint anyways; such that we model the offense/defense parameters as:
-$$
-off_{p} \sim Normal(0, \tau_{off}) \\
-def_{p} \sim Normal(0, \tau_{def})
-$$
 
 Discard the $home$ parameter - as it does not seem to make much sense in an online-game:
 $$
@@ -90,7 +85,9 @@ log \theta_{g2} = off_{p2(g)} + def_{p1(g)} \\
 off_{p} \sim Normal(0, \tau_{off}) \\
 def_{p} \sim Normal(0, \tau_{def}) \\
 \tau_{off} \sim Gamma(0.1, 0.1) \\
-\tau_{off} \sim Gamma(0.1, 0.1)
+\tau_{def} \sim Gamma(0.1, 0.1) \\
+\mu{off} \sim Normal(0, 0.0001) \\
+\mu{def} \sim Normal(0, 0.0001)
 $$
 
 ## DAG of Baseline Model
@@ -141,11 +138,13 @@ Final dataset: 7 unique players. 400 rows, 200 matches.
 
 ```python
 with pm.Model() as base_model:
-    tau_att    = pm.Gamma('tau_att', 0.1, 0.1)
-    tau_def    = pm.Gamma('tau_def', 0.1, 0.1)
-    atts_star = pm.Normal("atts_star", mu = 0, 
+    mu_att    = pm.Normal('mu_att', 0, 0.0001)
+    mu_def    = pm.Normal('mu_def', 0, 0.0001)
+    tau_att   = pm.Gamma('tau_att', 0.1, 0.1)
+    tau_def   = pm.Gamma('tau_def', 0.1, 0.1)
+    atts_star = pm.Normal("atts_star", mu = mu_att, 
                           sd = tau_att, shape = n_players)
-    defs_star = pm.Normal("defs_star", mu = 0, 
+    defs_star = pm.Normal("defs_star", mu = mu_def, 
                           sd = tau_def, shape = n_players)
     atts = pm.Deterministic('atts', atts_star - tt.mean(atts_star))
     defs = pm.Deterministic('defs', defs_star - tt.mean(defs_star))
