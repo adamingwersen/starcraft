@@ -96,7 +96,7 @@ $$
 ## DAG of Baseline Model
 (Directed Acyclic Graph)
 
-![](tikz_simple.png)
+![](img/tikz_simple.png)
 
 
 # A brief look at data preparation
@@ -106,7 +106,7 @@ The [starcraft-ii-matches-history](https://www.kaggle.com/alimbekovkz/starcraft-
 
 Distributed among 1.856 unique players. 
 
-![](table_1.png)
+![](img/table_1.png)
 
 
 Some exclusions are needed.
@@ -129,7 +129,7 @@ Top 9 players:
 ## A look at their performance
 
 ```{r, out.width = "800px"}
-knitr::include_graphics("subplot_1.png")
+knitr::include_graphics("img/subplot_1.png")
 ```
 
 MC and Serral each constitute ~0.04 of the 9 players' played games. Exclude them.
@@ -161,12 +161,12 @@ with pm.Model() as base_model:
 # Preliminary Results
 
 ## Model convergence - 1
-![](att_def.png)
+![](img/att_def.png)
 
 Ideally, we'd want a higher dispersion of correlation measures. 
 
 ## Model convergence - 2
-![](gelman_rubin.png)
+![](img/gelman_rubin.png)
 
 According to [PyStan Documentation](http://mc-stan.org/users/documentation/case-studies/pystan_workflow.html), a BFMI (Bayesian Fraction of Missing Information) of below 0.2 suggests poor sampling.
 
