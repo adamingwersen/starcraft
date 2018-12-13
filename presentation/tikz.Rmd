@@ -1,0 +1,18 @@
+---
+title: "tikz"
+author: "Adam Ingwersen"
+date: "December 11, 2018"
+header-includes:
+   - \usepackage{tikz-cd}
+output:
+  pdf_document: default
+  html_document: default
+---
+\section{}
+
+\begin{tikzcd}
+\mu_{off} \arrow[rd] \arrow[rrrrrd] &  & \tau_{off} \arrow[ld] \arrow[rrrd] &  &  & \mu_{def} \arrow[llld] \arrow[rd] &  & \tau_{def} \arrow[llllld] \arrow[ld] \\
+ & off_{p1(g)} \arrow[rd] & def_{p2(g)} \arrow[d] &  &  & off_{p2(g)} \arrow[d] & def_{p1(g)} \arrow[ld] &  \\
+ &  & \theta_{g1} \arrow[d] &  &  & \theta_{g2} \arrow[d] &  &  \\
+ &  & y_{g1} &  &  & y_{g2} &  & 
+\end{tikzcd}

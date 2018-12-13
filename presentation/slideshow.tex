@@ -1,0 +1,138 @@
+\documentclass[ignorenonframetext,]{beamer}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\newif\ifbibliography
+\hypersetup{
+            pdftitle={Bayesian Rating Models},
+            pdfauthor={Adam Ingwersen},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+
+\AtBeginPart{
+  \let\insertpartnumber\relax
+  \let\partname\relax
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \let\insertsectionnumber\relax
+    \let\sectionname\relax
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \let\insertsubsectionnumber\relax
+  \let\subsectionname\relax
+  \frame{\subsectionpage}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+\usepackage{tikz-cd}
+
+\title{Bayesian Rating Models}
+\subtitle{Starcraft II}
+\author{Adam Ingwersen}
+\date{December 11, 2018}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}{Outline of Presentation}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Introduction to Bayesian Rating Models
+\item
+  Exposé of related literature
+\item
+  Modification of related approaches
+\item
+  Why Starcraft II is different
+\item
+  Model specification
+\item
+  Preliminary results
+\end{enumerate}
+
+\end{frame}
+
+\section{Introduction to Bayesian Rating
+Models}\label{introduction-to-bayesian-rating-models}
+
+\section{Related Litterature}\label{related-litterature}
+
+\begin{frame}{Baio \& Blangiardo (2009)}
+
+Present an approach for modelling the outcome of football results in the
+Italian Series A
+
+Poisson-log-Normal model with explicit modelling of attacking and
+defensive capabilities of both teams.
+
+Construction of hyper-priors of attack and defense effects modeled
+independently with flat prior distributions.
+
+Approach inspired heavily by Karlis \& Ntzoufras (2003)
+
+\end{frame}
+
+\begin{frame}{DAG of Initial Model}
+
+\begin{frame}[fragile]
+\begin{tikzcd}
+\mu_{att} \arrow[rd] \arrow[rrrrrd] &  & \tau_{att} \arrow[ld] \arrow[rrrd] &  &  & \mu_{def} \arrow[llld] \arrow[rd] &  & \tau_{def} \arrow[llllld] \arrow[ld] \\
+ & att_{p1(g)} \arrow[rd] & def_{p2(g)} \arrow[d] &  &  & att_{p2(g)} \arrow[d] & def_{p1(g)} \arrow[ld] &  \\
+ &  & \theta_{g1} \arrow[d] &  &  & \theta_{g2} \arrow[d] &  &  \\
+ &  & y_{g1} &  &  & y_{g2} &  & 
+\end{tikzcd}
+\end{frame}
+
+\end{frame}
+
+\section{Modification}\label{modification}
+
+\section{Why Starcraft II is
+different}\label{why-starcraft-ii-is-different}
+
+\section{Model Specification}\label{model-specification}
+
+\section{Preliminary Results}\label{preliminary-results}
+
+\end{document}
