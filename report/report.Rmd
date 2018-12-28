@@ -1,0 +1,184 @@
+---
+# Change the title etc. to your needs:
+title: "Bayesian Rating Models"
+subtitle: "Starcraft II"
+author: "Adam Frederik Ingwersen Linnemann, 2018952670"
+course: 'Introduction to Bayesian Statistics, Korea University'
+logo: ku-logo.png  # insert path to your logo
+
+
+abstract: |
+  This report investigates the power of bayesian rating models in predicting professional Starcraft II league matches. Prediction on outcomes for the 2017 Korean championships are being considered; a variety of distributional relations are proposed, but it is found that the modelling of attacking and defensive parameters are suitable - and should follow a normal distribution. The proposed model rightly predicts the winner of the 2017 championships - but only some of the runner-ups are predicted correctly. More complicated models are proposed to alleviate this drawback of the base model.
+  
+# Change the following lines only if you know what you are doing:
+date: '`r format(Sys.Date(), "%d\\. %m\\. %Y")`'  # today
+fontfamily: lmodern
+fontsize: 11pt
+graphics: null
+papersize: 
+geometry: margin=1.0in
+classoption:
+  - a4paper
+  - oneside
+  #- more options here, see rmarkdown documentation 
+lang: en-US
+toc: yes
+numbersections: yes
+UP_title: yes
+UP_subtitle: yes
+shaded_quote: no
+output: 
+  yart::yart
+---
+
+```{r setup, include=FALSE, echo = FALSE, warning = FALSE, fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE, fig.pos= "h")
+library(knitr)
+library(kableExtra)
+options(kableExtra.latex.load_packages = T)
+```
+
+# Scope and Purpose
+The aim of this report is to investigate the performance and interpretability of bayesian rating models, as proposed by Baio & Blangiardo (2009), on Starcraft II match data. 
+
+# Data
+Data on Starcraft II matches from 2014 to 2017 is obtained from Kaggle. The data contains 187.397 match results played between 1.856 distinct players (professional and non-professional). 
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\linewidth]{img/table_1} \caption{Raw data}\label{fig:table1}
+\end{figure}
+
+In order to achieve a sensible amount of data for MCMC simulation on a laptop, the data has to be subsetted. This is done by looking at match-dates after \textit{2016-01-01}. 
+Furthermore, the number of players are limited to 8, by grabbing the top 8 players in the \textbf{2017 Starcraft II World Championship} - where the top 8 constitutes the finalists of that tournament. 
+
+```{python, eval = F}
+xpath = "//tr/td[@align = 'left']/a/text()"
+url = "https://liquipedia.net/starcraft2/2017_StarCraft_II_World_Championship_Series_Korea/Standings"
+page = requests.get(url)
+tree = html.fromstring(page.content)
+top  = tree.xpath(xpath)
+top8 = top[:8]
+``` 
+
+Further data preprocessing steps are documented in the attached \texttt{report.ipynb}. 
+\newline
+The players' defensive and offensive performance is represented in the figure below for the two considered seasons.
+\begin{figure}
+\centering
+\includegraphics[width=1.1\linewidth]{img/subplot_2} \caption{Relative player def/off performace}\label{fig:subplot2}
+\end{figure}
+
+In addition, the proportionality should ideally be somewhat equivalent between players. It's apparent that \textbf{Rogue} and \textbf{TY} are slightly underrepresented in the data. 
+
+```{r, eval = T, echo = F}
+players = cbind(c('Stats', 'INnoVation', 'Dark', 'soO', 'TY', 'GuMiho', 'herO', 'Rogue'))
+proportion = cbind(c(0.14977307110438728,
+ 0.15279878971255673,
+ 0.11800302571860817,
+ 0.12405446293494705,
+ 0.08169440242057488,
+ 0.15431164901664146,
+ 0.15128593040847202,
+ 0.0680786686838124))
+dt = data.frame(players, proportion)
+knitr::kable(dt, caption ="Player proportion of total dataset") %>%
+  kable_styling(latex_options = "h")
+```
+
+# Modelling
+
+In attempting to model the relations present in a Starcraft II tournament and capture the inhrerent dynamics that apply to such competitions, three distinct models are proposed. Each of which are to be explained in sections below.
+All models rely on having a set of proxy-distributions that represent the offensive and defensive attributes of any particular player. The model statistics and related plots are presented in the attached \texttt{ipython-notebook}.
+
+## Baseline Model
+
+This model serves as the basline to which other models are evaluated. It's a stripped down version of the model presented by \textit{Baio \& Blangiardo (2010)}, that takes a fixed zero-mean in offensive/defensive attributes, and only the parameter variance is modeled explicitly. 
+
+### Specification
+
+```{python, eval = F}
+tau_att    = pm.Gamma('tau_att', 0.1, 0.1)
+tau_def    = pm.Gamma('tau_def', 0.1, 0.1) 
+atts_star = pm.Normal("atts_star", mu = 0, sd = tau_att, shape = n_players)
+defs_star = pm.Normal("defs_star", mu = 0, sd = tau_def, shape = n_players) 
+atts = pm.Deterministic('atts', atts_star - tt.mean(atts_star))
+defs = pm.Deterministic('defs', defs_star - tt.mean(defs_star))
+p1_theta = tt.exp(atts[player_1] + defs[player_2])
+p2_theta = tt.exp(atts[player_2] + defs[player_1])
+p1_points = pm.Poisson('p1_points', mu = p1_theta, observed = observed_player1_score)
+p2_points = pm.Poisson('p2_points', mu = p2_theta, observed = observed_player2_score)
+``` 
+
+### Results
+
+With NUTS-sampling, the model converges quickly and achieves excellent \textbf{Rubin-Gelman} statistics and \textbf{BFMI (Bayesian Fraction of Missing Information)}, which indicates that the model both converged and is well-specified, respectively. 
+
+## Intercept Model
+
+This model is a re-write of the model presented in \textit{Baio \& Blangiardo (2010)}, with a tunable intercept to indicate a home-court advantage to one of the teams. This intuitively should not provide any additional information in a Starcraft II context.
+
+### Specification
+
+```{python, eval = F}
+tau_att    = pm.Gamma('tau_att', 0.1, 0.1)
+tau_def    = pm.Gamma('tau_def', 0.1, 0.1) 
+intercept  = pm.Flat('intercept')
+atts_star = pm.Normal("atts_star", mu = 0, sd = tau_att, shape = n_players)
+defs_star = pm.Normal("defs_star", mu = 0, sd = tau_def, shape = n_players)
+atts = pm.Deterministic('atts', atts_star - tt.mean(atts_star))
+defs = pm.Deterministic('defs', defs_star - tt.mean(defs_star))
+p1_theta = tt.exp(intercept + atts[player_1] + defs[player_2])
+p2_theta = tt.exp(intercept + atts[player_2] + defs[player_1])
+p1_points = pm.Poisson('p1_points', mu = p1_theta, observed = observed_player1_score)
+p2_points = pm.Poisson('p2_points', mu = p2_theta, observed = observed_player2_score)
+```
+
+### Results
+
+This specification has been run several times under the exact same conditions as the baseline model, but does not appear to converge - and may be misspecified as well. This suggests, that the inclusion of the intercept as a trainable parameter only makes MCMC more complicated, and does not provide any additional information. Thus, the homecourt-advantage is not present in the observed Starcraft II mathces, and perheaps in Starcraft II in general. 
+
+## Tunable Mean Model wo. Intercept
+
+This model is, again, inspired by the one suggested by \textit{Baio \& Blangiardo (2010)}, but disregards the intercept, and uses a trainable mean for both the offensive and defensive stats of the players. This seems to be a more sensible approach in the Starcraft II context.
+
+### Specification
+
+```{python, eval = F}
+mu_att     = pm.Normal('mu_att', 0)
+mu_def     = pm.Normal('mu_def', 0)
+tau_att    = pm.Gamma('tau_att', 0.1, 0.1)
+tau_def    = pm.Gamma('tau_def', 0.1, 0.1)
+atts_star = pm.Normal("atts_star", mu = mu_att, sd = tau_att, shape = n_players)
+defs_star = pm.Normal("defs_star", mu = mu_def, sd = tau_def, shape = n_players)
+atts = pm.Deterministic('atts', atts_star - tt.mean(atts_star))
+defs = pm.Deterministic('defs', defs_star - tt.mean(defs_star))
+p1_theta = tt.exp(atts[player_1] + defs[player_2])
+p2_theta = tt.exp(atts[player_2] + defs[player_1])
+p1_points = pm.Poisson('p1_points', mu = p1_theta, observed = observed_player1_score)
+p2_points = pm.Poisson('p2_points', mu = p2_theta, observed = observed_player2_score)
+```
+
+### Results
+
+This model performs rather similar to the baseline model, but does yield a lot of divergences in the sampling process, and takes longer to converge - thus it should be discarded in favor of the baseline model.
+
+# Discussion of major findings
+
+The first major finding has been to keep the model simple, as there does not appear to be complicated interactions in the data, that the model has a hard time capturing. Had the data been more detailed or more scarce, it may have been that the baseline model would not suffice. 
+
+## Picking the best model
+
+## Starcraft v. Soccer
+
+# Implications 
+
+# Concluding Remarks
+
+
+<!-- These lines ensure references are set with hanging indents in PDF documents -->
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+
+
