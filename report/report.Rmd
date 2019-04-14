@@ -169,11 +169,51 @@ The first major finding has been to keep the model simple, as there does not app
 
 ## Picking the best model
 
+The best results are, surprisingly, obtained by the baseline model, which shows telltale signs of convergence and proper specification. 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{img/rubin-gelman} \caption{Specification and convergence of baseline-model}\label{fig:rg1}
+\end{figure}
+
 ## Starcraft v. Soccer
+Obviously Starcraft II is a very different sport from soccer. The fact, that soccer is played in teams, whilst Starcraft II is played by individuals at the competitive level is a good example of the differences pertaining to the sports. As elaborated above, the does not appear to be any homecourt advantage, which is a rather significant factor in determining match outcomes. The proposed modelling framework assumes, that the offensive and defensive properties are seperable in Starcraft II, which may not be the case in the same way as in Soccer. It may very well be the case, that one should include the player activity such as APM (Actions Per Minute) as a factor. In Starcraft II defensive strategies also often rely of offensive harrasment of the opponent, which the proposed modelling framework may have trouble picking up on. 
+
+With that being said, it is not unreasonable to think that there is a tradeoff for players attempting offensive strategies by eroding defensive capabilites in the short term. 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{img/player-defense} \caption{Player Defensive Capabilites}\label{fig:def1}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{img/player-offense} \caption{Player Offensive Capabilites}\label{fig:off1}
+\end{figure}
+
+The defensive capabilites are directly linked to the opponents score - so the lower defensive capabilites, the better the player is at not letting the opponent get points.
 
 # Implications 
 
+The work that has been conducted this far can be trivially used to resample from the model and thus predict the final ranking of the players in the tournament. 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{img/final-table} \caption{2017 Tournament Predictions}\label{fig:tabl}
+\end{figure}
+
+We can compare to the actual final ranking:
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{img/final-ranking} \caption{2017 Tournament Results}\label{fig:tabl2}
+\end{figure}
+
 # Concluding Remarks
+
+This project has shown that bayesian rating models certainly are applicable to predicting Starcraft II rankings, although the methodology applied falls a bit short. 
+
+Future projects should seek to explore binomial distributions for the offensive and defensive capabilites and focus on a smaller player pool. 
 
 
 <!-- These lines ensure references are set with hanging indents in PDF documents -->
