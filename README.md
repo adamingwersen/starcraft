@@ -1,5 +1,5 @@
 ## Starcraft II Hierarchical Ranking Model
-###Minor project for Bayesian Statistics Course @ Korea University, December 2018
+### Minor project for Bayesian Statistics Course @ Korea University, December 2018
 
 This followed traditional Hierachical Ranking model approaches, commonly applied in Soccer etc., and attemted at predicting the match outcomes of a Starcraft Tournament. 
 
