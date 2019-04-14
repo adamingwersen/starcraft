@@ -5,7 +5,7 @@ This followed traditional Hierachical Ranking model approaches, commonly applied
 
 Project uses <b>pymc3</b>, and code is found in the <b>.ipynb</b>-files.
 
-Project outline can be found in /presentation/index.html
+Project outline can be found in index.html
 
 [Link to lacking final presentation prior to report](https://adamingwersen.github.io/starcraft/index.html)
 
